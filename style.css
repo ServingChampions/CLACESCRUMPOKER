@@ -37,6 +37,10 @@ html, body {
   display: none !important; /* Hides the injected element */
 }
 
+#Chat-Plugin-Root.compose-root-component {
+  display: none !important; /* Hides the injected element */
+}
+
 .sc-footer {
   margin-top: auto; /* Pushes it to the bottom */
 }
