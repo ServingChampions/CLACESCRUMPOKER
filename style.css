@@ -30,7 +30,15 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%; /* Force full height */
+  height: 100%;
+}
+
+#compose-ai-general-snackbar-root {
+  display: none !important; /* Hides the injected element */
+}
+
+.sc-footer {
+  margin-top: auto; /* Pushes it to the bottom */
 }
 
 body {
