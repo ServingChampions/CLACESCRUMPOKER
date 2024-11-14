@@ -448,6 +448,39 @@ h2 {
     padding: 15px;
   }
 
+  #vote-history {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    display: flex;
+    align-content: stretch;
+    justify-content: center;
+  }
+
+  #vote-history {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #vote-history th, #vote-history td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  #vote-history th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Ensure the table container is scrollable */
+#vote-history {
+  width: 100%; /* Adjust as needed */
+  max-height: 400px; /* Limit the height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ccc; /* Optional: border for visibility */
+}
+
 
   #winner-section h2 {
     text-align: center; /* Center align the text */
@@ -500,6 +533,30 @@ h2 {
     align-content: stretch;
     justify-content: center;
   }
+
+  #vote-history {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #vote-history th, #vote-history td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  #vote-history th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Ensure the table container is scrollable */
+#vote-history {
+  width: 100%; /* Adjust as needed */
+  max-height: 400px; /* Limit the height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ccc; /* Optional: border for visibility */
+}
 
   #winner-section h2 {
     text-align: center; /* Center align the text */
