@@ -1,41 +1,41 @@
-  /*/
-  SC footer
-  /*/
-  .sc-footer {
-    text-align: right;
-    font-size: 12px;
-    color: #555;
-    padding-top: 10px;
-    margin-top: 20px;
+/* SC Footer */
+.sc-footer {
+  text-align: right;
+  font-size: 12px;
+  color: #555;
+  padding: 10px;
+  margin-top: auto; /* Push footer to bottom when space allows */
+  width: 100%; /* Ensure full-width */
+  background-color: #ffffff; /* Add background if needed for contrast */
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1); /* Optional: slight shadow */
 }
 
 .sc-footer a {
-    color: #024C30;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
+  color: #024C30;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .sc-footer a img {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
 }
 
 .sc-footer a:hover {
-    color: #0056b3;
+  color: #0056b3;
 }
 
 body {
   font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between; /* Ensures content is spaced and footer sticks */
   align-items: center;
-  height: 100vh;
-  margin: 0;
+  min-height: 100vh; /* Full viewport height to push footer down */
+  margin: 0; /* Removes default margin */
   background-color: #f5f5f5; /* Light gray background */
-  padding: 20px; /* Space around edges */
 }
 
 body > * {
