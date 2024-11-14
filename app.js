@@ -73,7 +73,7 @@ cards.forEach(card => {
 
     // Add vote to Firestore
     try {
-      await addDoc(collection(db, 'votes'), {
+      await addDoc(collection(db, 'CLVotes'), {
         workItemId: workItemId,
         vote: voteValue,
         user: currentUserName,
@@ -87,7 +87,7 @@ cards.forEach(card => {
 });
 
 // Real-time listener for votes
-const votesQuery = query(collection(db, 'votes'), orderBy('timestamp'));
+const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
   renderVoteHistory(snapshot);
 });
@@ -125,7 +125,7 @@ toggleScoresButton.addEventListener('click', () => {
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
 
   // Manually re-render the table to reflect the change
-  const votesQuery = query(collection(db, 'votes'), orderBy('timestamp'));
+  const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
   onSnapshot(votesQuery, snapshot => {
     renderVoteHistory(snapshot);
   });
@@ -135,7 +135,7 @@ toggleScoresButton.addEventListener('click', () => {
 async function clearVotes() {
   try {
     // Retrieve all votes from Firestore and delete them
-    const votesSnapshot = await getDocs(collection(db, 'votes'));
+    const votesSnapshot = await getDocs(collection(db, 'CLVotes'));
     votesSnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref); // Delete each vote
     });
