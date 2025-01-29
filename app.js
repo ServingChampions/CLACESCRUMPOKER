@@ -144,3 +144,8 @@ async function loadWinners() {
 }
 
 loadWinners();
+
+toggleScoresButton.addEventListener('click', () => {
+  showScores = !showScores;
+  toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
+});
