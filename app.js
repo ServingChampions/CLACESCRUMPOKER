@@ -38,7 +38,7 @@ const toggleScoresButton = document.getElementById('toggle-scores');
 
 // Variables
 let currentUserName = '';
-let showScores = false;
+let showScores = false; // Initially set to hide scores
 
 // Initially hide the toggleScoresButton
 toggleScoresButton.style.display = 'none';
@@ -107,7 +107,9 @@ function renderVoteHistory(snapshot) {
 
     workItemCell.textContent = voteData.workItemId;
     nameCell.textContent = voteData.user;
-    voteCell.textContent = showScores ? voteData.vote : 'Hidden'; // Toggle vote visibility based on `showScores`
+
+    // If showScores is true, show the vote value, else show 'Hidden'
+    voteCell.textContent = showScores ? voteData.vote : 'Hidden';
 
     row.appendChild(workItemCell);
     row.appendChild(nameCell);
@@ -121,8 +123,8 @@ toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores; // Toggle the state
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
 
-  // Since `showScores` is toggling, we need to call renderVoteHistory again.
-  renderVoteHistory(votesQuery); // Ensure the table is re-rendered based on new `showScores` value
+  // Re-render the table after toggling the scores visibility
+  renderVoteHistory(votesQuery);
 });
 
 // Clear votes functionality remains the same
