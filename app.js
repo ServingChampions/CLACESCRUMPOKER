@@ -145,7 +145,17 @@ async function loadWinners() {
 
 loadWinners();
 
+    // Show or hide votes based on showScores
+    voteCell.textContent = showScores ? voteData.vote : 'Hidden';
+
+    row.appendChild(workItemCell);
+    row.appendChild(nameCell);
+    row.appendChild(voteCell);
+    voteHistoryTable.appendChild(row);
+  });
+}
+
+// Toggle score visibility
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores;
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
-});
