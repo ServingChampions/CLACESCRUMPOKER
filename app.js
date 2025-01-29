@@ -40,6 +40,9 @@ const toggleScoresButton = document.getElementById('toggle-scores');
 let currentUserName = '';
 let showScores = false;
 
+// Initially hide the toggleScoresButton
+toggleScoresButton.style.display = 'none';
+
 // Start voting after user enters their name
 startVotingButton.addEventListener('click', () => {
   currentUserName = userNameInput.value.trim();
@@ -48,8 +51,8 @@ startVotingButton.addEventListener('click', () => {
     return;
   }
   alert(`Welcome ${currentUserName}! You can now vote.`);
-  startVotingButton.style.display = 'none';
-  toggleScoresButton.style.display = 'inline';
+  startVotingButton.style.display = 'none'; // Hide start voting button after name is entered
+  toggleScoresButton.style.display = 'inline'; // Show toggle scores button after name is entered
 });
 
 // Handle card clicks (voting)
@@ -112,11 +115,13 @@ function renderVoteHistory(snapshot) {
   });
 }
 
+// Toggle the scores visibility
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores;
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
 });
 
+// Clear votes functionality remains the same
 async function clearVotes() {
   try {
     const votesSnapshot = await getDocs(collection(db, 'CLVotes'));
@@ -131,6 +136,7 @@ async function clearVotes() {
 
 document.getElementById('clear-votes').addEventListener('click', clearVotes);
 
+// Load winners functionality remains the same
 async function loadWinners() {
   try {
     const querySnapshot = await getDocs(query(collection(db, 'CLWINNERS'), orderBy('timestamp')));
