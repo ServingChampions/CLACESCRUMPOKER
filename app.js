@@ -40,6 +40,7 @@ const toggleScoresButton = document.getElementById('toggle-scores');
 let currentUserName = '';
 let showScores = false; // Initially set to hide scores
 let votesSnapshot = []; // Variable to store the latest snapshot data
+let voteRows = []; // Array to store the created rows
 
 // Initially hide the toggleScoresButton
 toggleScoresButton.style.display = 'none';
@@ -97,26 +98,42 @@ onSnapshot(votesQuery, snapshot => {
 });
 
 function renderVoteHistory() {
-  voteHistoryTable.innerHTML = ''; // Clear existing rows before rendering new ones
+  // Clear the table when rendering for the first time
+  if (voteRows.length === 0) {
+    voteHistoryTable.innerHTML = ''; // Clear existing rows before rendering new ones
 
-  votesSnapshot.forEach(voteData => {
-    const row = document.createElement('tr');
+    // Create rows based on the snapshot data
+    votesSnapshot.forEach(voteData => {
+      const row = document.createElement('tr');
 
-    const workItemCell = document.createElement('td');
-    const nameCell = document.createElement('td');
-    const voteCell = document.createElement('td');
+      const workItemCell = document.createElement('td');
+      const nameCell = document.createElement('td');
+      const voteCell = document.createElement('td');
 
-    workItemCell.textContent = voteData.workItemId;
-    nameCell.textContent = voteData.user;
+      workItemCell.textContent = voteData.workItemId;
+      nameCell.textContent = voteData.user;
 
-    // If showScores is true, show the vote value, else show 'Hidden'
-    voteCell.textContent = showScores ? voteData.vote : 'Hidden';
+      // If showScores is true, show the vote value, else show 'Hidden'
+      voteCell.textContent = showScores ? voteData.vote : 'Hidden';
 
-    row.appendChild(workItemCell);
-    row.appendChild(nameCell);
-    row.appendChild(voteCell);
-    voteHistoryTable.appendChild(row);
-  });
+      row.appendChild(workItemCell);
+      row.appendChild(nameCell);
+      row.appendChild(voteCell);
+
+      // Store the row in voteRows array
+      voteRows.push(row);
+      voteHistoryTable.appendChild(row); // Append the row to the table
+    });
+  } else {
+    // Only update the visibility of the scores (without resetting the entire table)
+    voteRows.forEach((row, index) => {
+      const voteCell = row.cells[2]; // Get the vote cell (3rd column)
+      const voteData = votesSnapshot[index];
+
+      // Update the visibility of the vote
+      voteCell.textContent = showScores ? voteData.vote : 'Hidden';
+    });
+  }
 }
 
 // Toggle the scores visibility
@@ -124,7 +141,7 @@ toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores; // Toggle the state
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
 
-  // Re-render the table after toggling the scores visibility
+  // Update the visibility of the scores without re-rendering the entire table
   renderVoteHistory();
 });
 
@@ -154,9 +171,6 @@ async function loadWinners() {
   } catch (e) {
     console.error('Error loading winners:', e);
   }
-}
-
-loadWinners();
 }
 
 loadWinners();
