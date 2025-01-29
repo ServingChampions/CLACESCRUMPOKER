@@ -39,6 +39,7 @@ const toggleScoresButton = document.getElementById('toggle-scores');
 // Variables
 let currentUserName = '';
 let showScores = false; // Initially set to hide scores
+let votesSnapshot = []; // Variable to store the latest snapshot data
 
 // Initially hide the toggleScoresButton
 toggleScoresButton.style.display = 'none';
@@ -91,14 +92,14 @@ cards.forEach(card => {
 // Real-time listener for votes
 const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
-  renderVoteHistory(snapshot);  // Pass snapshot directly to renderVoteHistory
+  votesSnapshot = snapshot.docs.map(doc => doc.data()); // Store snapshot data in variable
+  renderVoteHistory();  // Render the vote history table after receiving snapshot data
 });
 
-function renderVoteHistory(snapshot) {
+function renderVoteHistory() {
   voteHistoryTable.innerHTML = ''; // Clear existing rows before rendering new ones
 
-  snapshot.forEach(doc => {
-    const voteData = doc.data();
+  votesSnapshot.forEach(voteData => {
     const row = document.createElement('tr');
 
     const workItemCell = document.createElement('td');
@@ -124,7 +125,7 @@ toggleScoresButton.addEventListener('click', () => {
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
 
   // Re-render the table after toggling the scores visibility
-  renderVoteHistory(votesQuery);
+  renderVoteHistory();
 });
 
 // Clear votes functionality remains the same
@@ -153,6 +154,9 @@ async function loadWinners() {
   } catch (e) {
     console.error('Error loading winners:', e);
   }
+}
+
+loadWinners();
 }
 
 loadWinners();
