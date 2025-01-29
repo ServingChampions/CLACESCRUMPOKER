@@ -91,7 +91,7 @@ cards.forEach(card => {
 // Real-time listener for votes
 const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
-  renderVoteHistory(snapshot);  // Ensure the vote history is rendered on data change
+  renderVoteHistory(snapshot);  // Pass snapshot directly to renderVoteHistory
 });
 
 function renderVoteHistory(snapshot) {
@@ -120,7 +120,7 @@ function renderVoteHistory(snapshot) {
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores; // Toggle the state
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
-  renderVoteHistory(votesQuery);  // Re-render the vote history to update the visibility of votes
+  // No need to manually call renderVoteHistory here because onSnapshot handles that automatically.
 });
 
 // Clear votes functionality remains the same
