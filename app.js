@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+import { getFirestore, collection, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
 
 // Firebase configuration
@@ -38,7 +38,7 @@ const toggleScoresButton = document.getElementById('toggle-scores');
 
 // Variables
 let currentUserName = '';
-let showScores = false; // Track whether scores are visible
+let showScores = false;
 
 // Start voting after user enters their name
 startVotingButton.addEventListener('click', () => {
@@ -48,8 +48,8 @@ startVotingButton.addEventListener('click', () => {
     return;
   }
   alert(`Welcome ${currentUserName}! You can now vote.`);
-  startVotingButton.style.display = 'none'; // Hide the start button
-  toggleScoresButton.style.display = 'inline'; // Show the "Show Scores" button
+  startVotingButton.style.display = 'none';
+  toggleScoresButton.style.display = 'inline';
 });
 
 // Handle card clicks (voting)
@@ -68,20 +68,19 @@ cards.forEach(card => {
       return;
     }
 
-    // Update the current work item display
     workItemDisplay.textContent = workItemId;
 
-    // Add vote to Firestore
     try {
-      await addDoc(collection(db, 'CLVotes'), {
+      const voteRef = doc(db, 'CLVotes', `${currentUserName}_${workItemId}`);
+      await setDoc(voteRef, {
         workItemId: workItemId,
         vote: voteValue,
         user: currentUserName,
-        timestamp: serverTimestamp() // Timestamp for sorting
+        timestamp: serverTimestamp()
       });
-      console.log("Vote added to Firestore.");
+      console.log("Vote updated in Firestore.");
     } catch (error) {
-      console.error("Error adding vote: ", error);
+      console.error("Error updating vote: ", error);
     }
   });
 });
@@ -92,12 +91,8 @@ onSnapshot(votesQuery, snapshot => {
   renderVoteHistory(snapshot);
 });
 
-// Function to render the vote table
 function renderVoteHistory(snapshot) {
-  // Clear current table
   voteHistoryTable.innerHTML = '';
-
-  // Add each vote to the table
   snapshot.forEach(doc => {
     const voteData = doc.data();
     const row = document.createElement('tr');
@@ -108,8 +103,6 @@ function renderVoteHistory(snapshot) {
 
     workItemCell.textContent = voteData.workItemId;
     nameCell.textContent = voteData.user;
-
-    // Show or hide votes based on `showScores`
     voteCell.textContent = showScores ? voteData.vote : 'Hidden';
 
     row.appendChild(workItemCell);
@@ -119,25 +112,16 @@ function renderVoteHistory(snapshot) {
   });
 }
 
-// Toggle score visibility
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores;
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
-
-  // Manually re-render the table to reflect the change
-  const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
-  onSnapshot(votesQuery, snapshot => {
-    renderVoteHistory(snapshot);
-  });
 });
 
-// Function to clear votes
 async function clearVotes() {
   try {
-    // Retrieve all votes from Firestore and delete them
     const votesSnapshot = await getDocs(collection(db, 'CLVotes'));
     votesSnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref); // Delete each vote
+      await deleteDoc(doc.ref);
     });
     console.log("All votes cleared from Firestore.");
   } catch (error) {
@@ -145,67 +129,11 @@ async function clearVotes() {
   }
 }
 
-// Add the clear button event listener
-const clearVotesButton = document.getElementById('clear-votes');
-clearVotesButton.addEventListener('click', clearVotes);
+document.getElementById('clear-votes').addEventListener('click', clearVotes);
 
-// References to Winner Section Elements
-const winnerForm = document.getElementById('winner-form');
-const winnerTableBody = document.querySelector('#winner-table tbody');
-
-// Firestore reference for the "CLWINNERS" collection
-const winnersCollection = collection(db, 'CLWINNERS');
-
-// Listen for Winner Form Submission
-winnerForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); // Prevent form from reloading the page
-
-  // Get input values
-  const date = document.getElementById('winner-date').value;
-  const workItem = document.getElementById('winner-work-item').value;
-  const score = document.getElementById('winner-score').value;
-
-  // Validate inputs
-  if (!date || !workItem || !score) {
-    alert('Please fill out all fields!');
-    return;
-  }
-
-  // Save the winner data to Firebase
-  try {
-    await addDoc(winnersCollection, {
-      date,
-      workItem,
-      score,
-      timestamp: serverTimestamp(), // For ordering
-    });
-
-    // Update the table locally after submission
-    addWinnerToTable(date, workItem, score);
-
-    // Clear the form
-    winnerForm.reset();
-  } catch (e) {
-    console.error('Error saving winner:', e);
-    alert('Error saving winner. Please try again.');
-  }
-});
-
-// Function to Add Winner Data to the Table
-function addWinnerToTable(date, workItem, score) {
-  const newRow = document.createElement('tr');
-  newRow.innerHTML = `
-    <td>${date}</td>
-    <td>${workItem}</td>
-    <td>${score}</td>
-  `;
-  winnerTableBody.appendChild(newRow);
-}
-
-// Load Winner Data from Firebase on Page Load
 async function loadWinners() {
   try {
-    const querySnapshot = await getDocs(query(winnersCollection, orderBy('timestamp')));
+    const querySnapshot = await getDocs(query(collection(db, 'CLWINNERS'), orderBy('timestamp')));
     querySnapshot.forEach((doc) => {
       const winner = doc.data();
       addWinnerToTable(winner.date, winner.workItem, winner.score);
@@ -215,5 +143,4 @@ async function loadWinners() {
   }
 }
 
-// Load winners when the page loads
 loadWinners();
