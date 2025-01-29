@@ -91,11 +91,12 @@ cards.forEach(card => {
 // Real-time listener for votes
 const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
-  renderVoteHistory(snapshot);
+  renderVoteHistory(snapshot);  // Ensure the vote history is rendered on data change
 });
 
 function renderVoteHistory(snapshot) {
-  voteHistoryTable.innerHTML = '';
+  voteHistoryTable.innerHTML = ''; // Clear existing rows before rendering new ones
+
   snapshot.forEach(doc => {
     const voteData = doc.data();
     const row = document.createElement('tr');
@@ -106,7 +107,7 @@ function renderVoteHistory(snapshot) {
 
     workItemCell.textContent = voteData.workItemId;
     nameCell.textContent = voteData.user;
-    voteCell.textContent = showScores ? voteData.vote : 'Hidden';
+    voteCell.textContent = showScores ? voteData.vote : 'Hidden'; // Toggle vote visibility based on `showScores`
 
     row.appendChild(workItemCell);
     row.appendChild(nameCell);
@@ -117,8 +118,9 @@ function renderVoteHistory(snapshot) {
 
 // Toggle the scores visibility
 toggleScoresButton.addEventListener('click', () => {
-  showScores = !showScores;
-  toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
+  showScores = !showScores; // Toggle the state
+  toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
+  renderVoteHistory(votesQuery);  // Re-render the vote history to update the visibility of votes
 });
 
 // Clear votes functionality remains the same
