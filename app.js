@@ -120,7 +120,9 @@ function renderVoteHistory(snapshot) {
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores; // Toggle the state
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
-  // No need to manually call renderVoteHistory here because onSnapshot handles that automatically.
+
+  // Since `showScores` is toggling, we need to call renderVoteHistory again.
+  renderVoteHistory(votesQuery); // Ensure the table is re-rendered based on new `showScores` value
 });
 
 // Clear votes functionality remains the same
