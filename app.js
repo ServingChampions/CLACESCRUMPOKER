@@ -35,17 +35,13 @@ const voteHistoryTable = document.getElementById('vote-history').getElementsByTa
 const userNameInput = document.getElementById('user-name');
 const startVotingButton = document.getElementById('start-voting');
 const toggleScoresButton = document.getElementById('toggle-scores');
+const clearVotesButton = document.getElementById('clear-votes');
 
 // Variables
 let currentUserName = '';
-let showScores = false; // Initially set to hide scores
-let votesSnapshot = []; // Variable to store the latest snapshot data
-let voteRows = []; // Array to store the created rows
+let showScores = false;
 
-// Initially hide the toggleScoresButton
-toggleScoresButton.style.display = 'none';
-
-// Start voting after user enters their name
+// Start voting after entering name
 startVotingButton.addEventListener('click', () => {
   currentUserName = userNameInput.value.trim();
   if (!currentUserName) {
@@ -53,11 +49,11 @@ startVotingButton.addEventListener('click', () => {
     return;
   }
   alert(`Welcome ${currentUserName}! You can now vote.`);
-  startVotingButton.style.display = 'none'; // Hide start voting button after name is entered
-  toggleScoresButton.style.display = 'inline'; // Show toggle scores button after name is entered
+  startVotingButton.style.display = 'none';
+  toggleScoresButton.style.display = 'inline';
 });
 
-// Handle card clicks (voting)
+// Handle voting
 cards.forEach(card => {
   card.addEventListener('click', async () => {
     if (!currentUserName) {
@@ -76,9 +72,8 @@ cards.forEach(card => {
     workItemDisplay.textContent = workItemId;
 
     try {
-      const voteRef = doc(db, 'CLVotes', `${currentUserName}_${workItemId}`);
-      await setDoc(voteRef, {
-        workItemId: workItemId,
+      await setDoc(doc(db, 'CLVotes', currentUserName), {
+        workItemId,
         vote: voteValue,
         user: currentUserName,
         timestamp: serverTimestamp()
@@ -90,87 +85,43 @@ cards.forEach(card => {
   });
 });
 
-// Real-time listener for votes
+// Real-time listener
 const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
-  votesSnapshot = snapshot.docs.map(doc => doc.data()); // Store snapshot data in variable
-  renderVoteHistory();  // Render the vote history table after receiving snapshot data
+  renderVoteHistory(snapshot);
 });
 
-function renderVoteHistory() {
-  // Clear the table when rendering for the first time
-  if (voteRows.length === 0) {
-    voteHistoryTable.innerHTML = ''; // Clear existing rows before rendering new ones
+// Render vote table
+function renderVoteHistory(snapshot) {
+  voteHistoryTable.innerHTML = '';
+  snapshot.forEach(doc => {
+    const voteData = doc.data();
+    const row = document.createElement('tr');
 
-    // Create rows based on the snapshot data
-    votesSnapshot.forEach(voteData => {
-      const row = document.createElement('tr');
-
-      const workItemCell = document.createElement('td');
-      const nameCell = document.createElement('td');
-      const voteCell = document.createElement('td');
-
-      workItemCell.textContent = voteData.workItemId;
-      nameCell.textContent = voteData.user;
-
-      // If showScores is true, show the vote value, else show 'Hidden'
-      voteCell.textContent = showScores ? voteData.vote : 'Hidden';
-
-      row.appendChild(workItemCell);
-      row.appendChild(nameCell);
-      row.appendChild(voteCell);
-
-      // Store the row in voteRows array
-      voteRows.push(row);
-      voteHistoryTable.appendChild(row); // Append the row to the table
-    });
-  } else {
-    // Only update the visibility of the scores (without resetting the entire table)
-    voteRows.forEach((row, index) => {
-      const voteCell = row.cells[2]; // Get the vote cell (3rd column)
-      const voteData = votesSnapshot[index];
-
-      // Update the visibility of the vote
-      voteCell.textContent = showScores ? voteData.vote : 'Hidden';
-    });
-  }
+    row.innerHTML = `
+      <td>${voteData.workItemId}</td>
+      <td>${voteData.user}</td>
+      <td>${showScores ? voteData.vote : 'Hidden'}</td>
+    `;
+    voteHistoryTable.appendChild(row);
+  });
 }
 
-// Toggle the scores visibility
+// Toggle score visibility
 toggleScoresButton.addEventListener('click', () => {
-  showScores = !showScores; // Toggle the state
-  toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores'; // Change button text
-
-  // Update the visibility of the scores without re-rendering the entire table
-  renderVoteHistory();
+  showScores = !showScores;
+  toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
+  getDocs(votesQuery).then(snapshot => renderVoteHistory(snapshot));
 });
 
-// Clear votes functionality remains the same
-async function clearVotes() {
+// Clear votes
+clearVotesButton.addEventListener('click', async () => {
   try {
     const votesSnapshot = await getDocs(collection(db, 'CLVotes'));
-    votesSnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
-    console.log("All votes cleared from Firestore.");
+    votesSnapshot.forEach(async doc => await deleteDoc(doc.ref));
+    console.log("All votes cleared.");
   } catch (error) {
     console.error("Error clearing votes: ", error);
   }
-}
+});
 
-document.getElementById('clear-votes').addEventListener('click', clearVotes);
-
-// Load winners functionality remains the same
-async function loadWinners() {
-  try {
-    const querySnapshot = await getDocs(query(collection(db, 'CLWINNERS'), orderBy('timestamp')));
-    querySnapshot.forEach((doc) => {
-      const winner = doc.data();
-      addWinnerToTable(winner.date, winner.workItem, winner.score);
-    });
-  } catch (e) {
-    console.error('Error loading winners:', e);
-  }
-}
-
-loadWinners();
